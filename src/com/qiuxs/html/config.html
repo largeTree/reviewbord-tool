@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RevireBordTool</title>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript">
+function onload() {
+	loadConfig();
+}
+function loadConfig() {
+	var config = JSON.parse(jsBridge.loadConfig());
+	var inputs = $('.input');
+	for (var i = 0; i < inputs.length; i++) {
+		$(inputs[i]).val(config[$(inputs[i]).attr('name')]);
+	}
+}
+function saveConfig() {
+	var inputs = $('.input');
+	var config = {};
+	for (var i = 0; i < inputs.length; i++) {
+		config[$(inputs[i]).attr('name')] = $(inputs[i]).val();
+	}
+	jsBridge.saveConfig(JSON.stringify(config));
+}
+</script>
+<style type="text/css">
+	div p {
+		border-bottom: 1px #CCCCCC solid;
+	}
+	.align-right {
+		float: right;
+	}
+	.label {
+		padding-right: 10px;
+	}
+	.input {
+		width: 100%;
+	}
+</style>
+</head>
+<body onload="onload()">
+	<div>
+		<p>Config Info</p>
+		<table width="100%">
+			<tr>
+				<td class="align-right label">ServerURL:</td>
+				<td><input class="input" type="text" name="serverUrl" /></td>
+			</tr>
+			<tr>
+				<td class="align-right label">Username:</td>
+				<td><input class="input" type="text" name="userName" /></td>
+			</tr>
+			<tr>
+				<td class="align-right label">Password:</td>
+				<td><input class="input" type="password" name="password" /></td>
+			</tr>
+			<tr>
+				<td class="align-right label">Groups:</td>
+				<td><input class="input" type="text" name="groups" /></td>
+			</tr>
+			<tr>
+				<td class="align-right label">People:</td>
+				<td><input class="input" type="text" name="people" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" style="text-align: center;"><button onclick="saveConfig()">保存</button></td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

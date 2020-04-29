@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RevireBordTool</title>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript">
+
+function onload() {
+	var config = JSON.parse(jsBridge.loadConfig());
+	$('input[name="people"]').val(config.people);
+	var groups = config.groups;
+	if (groups) {
+		var groupArr = groups.split(',');
+		var $groupSec = $('#groupSec');
+		for (var i = 0; i < groupArr.length; i++) {
+			var item = '<option value="' + groupArr[i] + '">' + groupArr[i] + '</option>';
+			$groupSec.append(item);
+		}
+	}
+	$('input[name="directory"]').val(config.directory);
+}
+
+function selectDir() {
+	var path = jsBridge.selectDirectory();
+	var $input = $('input[name="directory"]');
+	if (path && path.length > 0) {
+		$input.val(path);
+		$input.removeClass('err-input');
+	}
+}
+
+function submit() {
+	var inputs = $('input[name],select[name],textarea[name]');
+	var params = {};
+	var hasErr = false;
+	for (var i = 0; i < inputs.length; i++) {
+		var $input = $(inputs[i]);
+		if ($input.attr('type') === 'radio' && !$input.is(':checked')) {
+			continue;
+		}
+		var field = $input.attr('name');
+		var val = $input.val();
+		params[field] = val;
+		
+		if ((field === 'directory' || field === 'respository' || field === 'summary' || 
+				field === 'group' || field === 'people' || field === 'description') 
+				&& (!val || val === '')) {
+			hasErr = true;
+			$input.addClass('err-input');
+		}
+	}
+	if (hasErr) {
+		return;
+	}
+	var res = jsBridge.submitReview(JSON.stringify(params));
+	$("#res pre").html(res);
+}
+
+function blured($event) {
+	var $this = $($event.currentTarget);
+	if ($this.val() && $this.val().length > 0) {
+		$this.removeClass('err-input');
+	} else {
+		$this.addClass('err-input');
+	}
+}
+
+</script>
+
+<style type="text/css">
+div {
+	border: 1px #CCCCCC solid;
+	border-radius: 3px;
+	margin-bottom: 10px;
+}
+
+.align-right {
+	float: right;
+}
+
+.label {
+	padding-right: 10px;
+}
+
+div p {
+	margin: 0px;
+	padding: 2px 10px;
+	border-bottom: 1px #CCCCCC solid;
+}
+
+td {
+	height: 20px;
+	line-height: 20px;
+	padding: 1px 3px;
+}
+
+.err-input {
+	border: 1px red solid;
+}
+</style>
+</head>
+
+<body onload="onload()">
+	<div>
+		<p>Directory</p>
+		<table width="100%">
+			<tr>
+				<td class="label" style="width: 50px;">Directory:</td>
+				<td><input type="text" name="directory" style="width: 100%" onchange="blured(event)" />
+				</td>
+				<td width="50px">
+					<button onclick="selectDir()">选择</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<p>Repository</p>
+		<table>
+			<tr>
+				<td class="align-right label">Respository:</td>
+				<td><input type="text" name="respository" value="root" onblur="blured(event)"/></td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<p>Request</p>
+		<table>
+			<tr>
+				<td>
+					<label><input type="radio" name="reqType" value="0" checked="checked" /> New Request</label>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label><input type="radio" name="reqType" value="1" />Existing Request</label>
+				</td>
+				<td>
+					<input type="text" name="requestId" placeholder="Old RequestId" onblur="blured(event)" />
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<p>Attributes</p>
+		<table width="100%">
+			<tr>
+				<td class="align-right label">Summary:</td>
+				<td colspan="3">
+					<input type="text" name="summary" style="width: 100%" onblur="blured(event)"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="align-right label">Groups:</td>
+				<td>
+					<select style="width: 100%" id="groupSec" name="group"></select>
+				</td>
+				<td class="align-right label">People:</td>
+				<td>
+					<input type="text" name="people" style="width: 100%" onblur="blured(event)" />
+				</td>
+			</tr>
+			<tr>
+				<td class="align-right label">Description:</td>
+				<td colspan="3">
+					<textarea rows="3" cols="20" style="width: 100%" name="description" onblur="blured(event)"></textarea>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="border: 0px; text-align: center;">
+		<button onclick="submit()">提交</button>
+	</div>
+	<div id="res">
+		<pre></pre>
+	</div>
+</body>
+</html>
